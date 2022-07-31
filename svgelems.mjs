@@ -8,7 +8,8 @@ export class SVGElement {
 		this.fill = fill
 	}
 
-	draw(ctx) {}
+	draw(ctx, scale) {}
+	tree() {}
 
 }
 
@@ -19,12 +20,16 @@ export class SVGGroup extends SVGElement {
 		this.children = []
 	}
 
-	draw(ctx) {
+	draw(ctx, scale) {
 
 		for (let e of this.children) {
-			e.draw(ctx)
+			e.draw(ctx, scale)
 		}
 
+	}
+
+	tree() {
+		
 	}
 
 }
@@ -40,15 +45,30 @@ export class SVGRootElement extends SVGGroup {
 
 export class SVGLine extends SVGElement {
 
-	constructor(id, pos, pos2, stroke, fill) {
-		super("line", id, pos, stroke, fill)
-		this.pos2 = pos2
-		console.log(pos, pos2)
+	constructor(id, a, b, stroke, fill) {
+		super("line", id, a, stroke, fill)
+		this.pos2 = b
 	}
 
-	draw(ctx) {
+	draw(ctx, scale) {
+		ctx.moveTo(this.pos[0] * scale, this.pos[1] * scale)
+		ctx.lineTo(this.pos2[0] * scale, this.pos2[1] * scale)
+		ctx.stroke()
+	}
+
+}
+
+export class SVGQuadBezier extends SVGElement {
+
+	constructor(id, a, b, c, stroke, fill) {
+		super("quadbezier", id, a, stroke, fill)
+		this.pos2 = b
+		this.pos3 = c
+	}
+
+	draw(ctx, scale) {
 		ctx.moveTo(this.pos[0], this.pos[1])
-		ctx.lineTo(this.pos2[0], this.pos2[1])
+		ctx.quadraticCurveTo(this.pos2[0], this.pos2[1], this.pos3[0], this.pos3[1])
 		ctx.stroke()
 	}
 
