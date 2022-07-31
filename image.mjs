@@ -1,6 +1,7 @@
 import { e } from "./util.mjs"
 import * as svg from "./svgelems.mjs"
 import nextID from "./idassigner.mjs"
+import Point from "./Point.mjs"
 
 export default class SvgImage {
 
@@ -13,7 +14,7 @@ export default class SvgImage {
 		this.canvas.width  = this.#width
 		this.canvas.height = this.#height
 		this.#scale  = 1
-		this.offset  = [0, 0]
+		this.offset  = new Point(0, 0)
 		this.svg     = new svg.SVGRootElement()
 		this.elems   = new Map() // id => SVGElement
 		this.selectedElement = null

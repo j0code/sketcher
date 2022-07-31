@@ -1,9 +1,9 @@
-export function drawHandle(ctx, pos) {
+export function drawHandle(ctx, p) {
 	ctx.fillStyle = "#ff0000"
 	ctx.beginPath()
-	ctx.arc(pos[0], pos[1], 1, 0, 2 * Math.PI, true)
+	ctx.arc(p.x, p.y, 1, 0, 2 * Math.PI, true)
 	ctx.fill()
 	ctx.beginPath()
-	ctx.arc(pos[0], pos[1], 10, 0, 2 * Math.PI, true)
+	ctx.arc(p.x, p.y, 10, 0, 2 * Math.PI, true)
 	ctx.stroke()
 }

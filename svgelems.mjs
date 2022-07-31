@@ -1,4 +1,5 @@
 import { e } from "./util.mjs"
+import Point from "./Point.mjs"
 
 export class SVGElement {
 
@@ -78,7 +79,7 @@ export class SVGGroup extends SVGElement {
 export class SVGRootElement extends SVGGroup {
 
 	constructor() {
-		super([0, 0], null, null)
+		super(new Point(0, 0), null, null)
 		this.type = "svg"
 	}
 
@@ -92,8 +93,8 @@ export class SVGLine extends SVGElement {
 	}
 
 	draw(ctx, scale) {
-		ctx.moveTo(this.pos[0] * scale, this.pos[1] * scale)
-		ctx.lineTo(this.pos2[0] * scale, this.pos2[1] * scale)
+		ctx.moveTo(this.pos.x  * scale, this.pos.y  * scale)
+		ctx.lineTo(this.pos2.x * scale, this.pos2.y * scale)
 		ctx.stroke()
 	}
 
@@ -108,8 +109,8 @@ export class SVGQuadBezier extends SVGElement {
 	}
 
 	draw(ctx, scale) {
-		ctx.moveTo(this.pos[0] * scale, this.pos[1] * scale)
-		ctx.quadraticCurveTo(this.pos2[0] * scale, this.pos2[1] * scale, this.pos3[0] * scale, this.pos3[1] * scale)
+		ctx.moveTo(this.pos.x * scale, this.pos.y * scale)
+		ctx.quadraticCurveTo(this.pos2.x * scale, this.pos2.y * scale, this.pos3.x * scale, this.pos3.y * scale)
 		ctx.stroke()
 	}
 

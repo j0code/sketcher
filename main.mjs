@@ -4,6 +4,7 @@ import DrawScheduler from "./drawscheduler.mjs"
 import * as tools from "./tool.mjs"
 import MouseEvents from "./mouseevents.mjs"
 import { drawHandle } from "./handle.mjs"
+import Point from "./Point.mjs"
 
 const canvas = $("#sketch")
 const image  = new SvgImage(1920, 1080, "#ffffff")
@@ -13,7 +14,6 @@ const mouseEvents = new MouseEvents($("body"), $("#sketch"))
 const scheduler = new DrawScheduler(30, draw)
 window.scheduler = scheduler
 
-let imageOffset = [0, 0]
 let imageRotation = 0
 
 function draw() {
@@ -27,7 +27,7 @@ function draw() {
 
 	ctx.save()
 	ctx.translate(canvas.width/2, canvas.height/2)
-	ctx.translate(imageOffset[0], imageOffset[1])
+	ctx.translate(image.offset.x, image.offset.y)
 	//ctx.rotate(imageRotation)
 	//ctx.scale(image.scale, image.scale)
 	ctx.translate(-image.width/2 * image.scale, -image.height/2 * image.scale)
@@ -56,12 +56,12 @@ mouseEvents.on("drag", e => {
 		tool.drag(e)
 		return
 	}
-	imageOffset[0] += e.dx
-	imageOffset[1] += e.dy
-	if (imageOffset[0] < -image.width /2 * image.scale) imageOffset[0] = -image.width /2 * image.scale
-	if (imageOffset[1] < -image.height/2 * image.scale) imageOffset[1] = -image.height/2 * image.scale
-	if (imageOffset[0] >  image.width /2 * image.scale) imageOffset[0] =  image.width /2 * image.scale
-	if (imageOffset[1] >  image.height/2 * image.scale) imageOffset[1] =  image.height/2 * image.scale
+	image.offset.x += e.dx
+	image.offset.y += e.dy
+	if (image.offset.x < -image.width /2 * image.scale) image.offset.x = -image.width /2 * image.scale
+	if (image.offset.y < -image.height/2 * image.scale) image.offset.y = -image.height/2 * image.scale
+	if (image.offset.x >  image.width /2 * image.scale) image.offset.x =  image.width /2 * image.scale
+	if (image.offset.y >  image.height/2 * image.scale) image.offset.y =  image.height/2 * image.scale
 })
 
 mouseEvents.on("wheel", e => {
@@ -114,11 +114,11 @@ for (let i in tools.tools) {
 
 export function convertCoordsToImage(coords) {
 	// ctx.translate(canvas.width/2 - (image.width/2 * imageScale), canvas.height/2 - (image.height/2 * imageScale))
-	return [(coords[0] - canvas.width/2 - imageOffset[0]) / image.scale + image.width/2, (coords[1] - canvas.height/2 - imageOffset[1]) / image.scale + image.height/2]
+	return new Point((coords.x - canvas.width/2 - image.offset.x) / image.scale + image.width/2, (coords.y - canvas.height/2 - image.offset.y) / image.scale + image.height/2)
 }
 
 export function convertCoordsToCanvas(coords) {
 	// ctx.translate(canvas.width/2 - (image.width/2 * imageScale), canvas.height/2 - (image.height/2 * imageScale))
 	//return [canvas.width/2 - (image.width/2 * imageScale) + coords[0] + imageOffset[0], canvas.height/2 - (image.height/2 * imageScale) + coords[1] + imageOffset[1]]
-	return [canvas.width/2 + imageOffset[0] + (-image.width/2 + coords[0]) * image.scale, canvas.height/2 + imageOffset[1] + (-image.height/2 + coords[1]) * image.scale]
+	return new Point(canvas.width/2 + image.offset.x + (-image.width/2 + coords.x) * image.scale, canvas.height/2 + image.offset.y + (-image.height/2 + coords.y) * image.scale)
 }
