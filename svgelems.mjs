@@ -2,9 +2,9 @@ import { e } from "./util.mjs"
 
 export class SVGElement {
 
-	constructor(type, id, pos, stroke, fill) {
+	constructor(type, pos, stroke, fill) {
 		this.type = type
-		this.id = id
+		this.id = null
 		this.pos = pos
 		this.stroke = stroke
 		this.fill = fill
@@ -36,9 +36,10 @@ export class SVGElement {
 
 export class SVGGroup extends SVGElement {
 
-	constructor(id, pos, stroke, fill) {
-		super("g", id, pos, stroke, fill)
+	constructor(pos, stroke, fill) {
+		super("g", pos, stroke, fill)
 		this.children = []
+		this.collapsed = true
 	}
 
 	draw(ctx, scale) {
@@ -55,10 +56,13 @@ export class SVGGroup extends SVGElement {
 		const childDiv = e("div.tree-group-children")
 
 		div.classList.add("tree-group")
-		div.classList.add("collapsed")
+		if (this.collapsed) div.classList.add("collapsed")
 
-		caret.innerText = ">"
-		caret.on("click", () => div.classList.toggle("collapsed"))
+		caret.innerText = ">" // TODO: replace with icon
+		caret.on("click", () => {
+			this.collapsed = !this.collapsed
+			div.classList.toggle("collapsed")
+		})
 
 		for (let c of this.children) {
 			childDiv.push(c.tree())
@@ -74,7 +78,7 @@ export class SVGGroup extends SVGElement {
 export class SVGRootElement extends SVGGroup {
 
 	constructor() {
-		super(-1, [0, 0], null, null)
+		super([0, 0], null, null)
 		this.type = "svg"
 	}
 
@@ -82,8 +86,8 @@ export class SVGRootElement extends SVGGroup {
 
 export class SVGLine extends SVGElement {
 
-	constructor(id, a, b, stroke, fill) {
-		super("line", id, a, stroke, fill)
+	constructor(a, b, stroke, fill) {
+		super("line", a, stroke, fill)
 		this.pos2 = b
 	}
 
@@ -97,8 +101,8 @@ export class SVGLine extends SVGElement {
 
 export class SVGQuadBezier extends SVGElement {
 
-	constructor(id, a, b, c, stroke, fill) {
-		super("quadbezier", id, a, stroke, fill)
+	constructor(a, b, c, stroke, fill) {
+		super("quadbezier", a, stroke, fill)
 		this.pos2 = b
 		this.pos3 = c
 	}

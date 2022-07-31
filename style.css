@@ -81,10 +81,6 @@ div {
 	color: white;
 }
 
-#tree * {
-	background-color: #00000010;
-}
-
 .tree-elem {
 	flex-direction: column;
 	cursor: grab;

@@ -1,5 +1,6 @@
 import { e } from "./util.mjs"
 import * as svg from "./svgelems.mjs"
+import nextID from "./idassigner.mjs"
 
 export default class SvgImage {
 
@@ -13,7 +14,9 @@ export default class SvgImage {
 		this.canvas.height = this.#height
 		this.#scale  = 1
 		this.offset  = [0, 0]
-		this.svg = new svg.SVGRootElement()
+		this.svg     = new svg.SVGRootElement()
+		this.elems   = new Map() // id => SVGElement
+		this.selectedElement = null
 	}
 
 	draw() {
@@ -56,10 +59,22 @@ export default class SvgImage {
 	}
 
 	addElement(e) {
-		if (e instanceof svg.SVGElement) {
-			this.svg.children.push(e)
-		}
+		if (!(e instanceof svg.SVGElement)) return
+		let id = nextID(this.elems)
+		e.id = id
+
+		this.elems.set(id, e)
+		this.svg.children.push(e)
+		this.selectedElement = e
 		this.draw()
+	}
+
+	get(id) {
+		return this.elems.get(id)
+	}
+
+	getSelected() {
+		return this.selectedElement ? get(this.selectedElement) : this.svg
 	}
 
 }

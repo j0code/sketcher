@@ -58,7 +58,7 @@ export class Line extends Tool {
 	}
 
 	endDrag(e) {
-		this.image.addElement(new svg.SVGLine(15, convertCoords(this.points[0]), convertCoords([e.x, e.y]), null, null))
+		this.image.addElement(new svg.SVGLine(convertCoords(this.points[0]), convertCoords([e.x, e.y]), null, null))
 		this.points = []
 		updateTree()
 	}
@@ -95,7 +95,7 @@ export class QuadBezier extends Tool {
 		let delta = [(this.points[2][0] - this.points[0][0]) / 2, (this.points[2][1] - this.points[0][1]) / 2]
 		this.points[1] = [this.points[0][0] + delta[0] + delta[1], this.points[0][1] + delta[1] - delta[0]]
 
-		this.image.addElement(new svg.SVGQuadBezier(15, convertCoords(this.points[0]), convertCoords(this.points[1]), convertCoords([e.x, e.y]), null, null))
+		this.image.addElement(new svg.SVGQuadBezier(convertCoords(this.points[0]), convertCoords(this.points[1]), convertCoords([e.x, e.y]), null, null))
 		this.points = []
 		updateTree()
 	}
