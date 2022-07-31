@@ -1,5 +1,5 @@
 import * as svg from "./svgelems.mjs"
-import { convertCoordsToImage as convertCoords } from "./main.mjs"
+import { convertCoordsToImage as convertCoords, updateTree } from "./main.mjs"
 import { drawHandle } from "./handle.mjs"
 
 export class Tool {
@@ -60,6 +60,7 @@ export class Line extends Tool {
 	endDrag(e) {
 		this.image.addElement(new svg.SVGLine(15, convertCoords(this.points[0]), convertCoords([e.x, e.y]), null, null))
 		this.points = []
+		updateTree()
 	}
 
 }
@@ -85,7 +86,6 @@ export class QuadBezier extends Tool {
 		this.points[2] = [e.x, e.y]
 		let delta = [(this.points[2][0] - this.points[0][0]) / 2, (this.points[2][1] - this.points[0][1]) / 2]
 		this.points[1] = [this.points[0][0] + delta[0] + delta[1], this.points[0][1] + delta[1] - delta[0]]
-		console.log(this.points)
 	}
 	// y = m * x + c
 	// y - m * x = c
@@ -97,6 +97,7 @@ export class QuadBezier extends Tool {
 
 		this.image.addElement(new svg.SVGQuadBezier(15, convertCoords(this.points[0]), convertCoords(this.points[1]), convertCoords([e.x, e.y]), null, null))
 		this.points = []
+		updateTree()
 	}
 
 }

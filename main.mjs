@@ -39,11 +39,11 @@ function draw() {
 
 }
 
-function updateTree() {
+export function updateTree() {
 	const tree = $("#tree")
 	const svg  = image.svg
 	tree.innerHTML = ""
-	//tree.appendChild(svg.tree())
+	tree.appendChild(svg.tree())
 }
 
 image.draw()

@@ -1,3 +1,5 @@
+import { e } from "./util.mjs"
+
 export class SVGElement {
 
 	constructor(type, id, pos, stroke, fill) {
@@ -9,7 +11,26 @@ export class SVGElement {
 	}
 
 	draw(ctx, scale) {}
-	tree() {}
+
+	tree(a = []) {
+		const id    = this instanceof SVGRootElement ? "tree-root" : `tree-elem-${this.id}`
+		const div   = e(`div.tree-elem#${id}`)
+		const head  = e("div.tree-elem-head")
+		const icon  = e("div.tree-elem-icon") // TODO: change to img or svg
+		const name  = e("span.tree-elem-name")
+
+		name.innerText  = this.type
+
+		head.push(icon, name)
+		div.push(head)
+		if (a) {
+			a.div  = div
+			a.head = head
+			a.icon = icon
+			a.name = name
+		}
+		return div
+	}
 
 }
 
@@ -28,8 +49,24 @@ export class SVGGroup extends SVGElement {
 
 	}
 
-	tree() {
-		
+	tree(a = []) {
+		const div = super.tree(a)
+		const caret = e("div.tree-elem-caret")
+		const childDiv = e("div.tree-group-children")
+
+		div.classList.add("tree-group")
+		div.classList.add("collapsed")
+
+		caret.innerText = ">"
+		caret.on("click", () => div.classList.toggle("collapsed"))
+
+		for (let c of this.children) {
+			childDiv.push(c.tree())
+		}
+
+		a.head.prepend(caret)
+		div.push(childDiv)
+		return div
 	}
 
 }
@@ -67,8 +104,8 @@ export class SVGQuadBezier extends SVGElement {
 	}
 
 	draw(ctx, scale) {
-		ctx.moveTo(this.pos[0], this.pos[1])
-		ctx.quadraticCurveTo(this.pos2[0], this.pos2[1], this.pos3[0], this.pos3[1])
+		ctx.moveTo(this.pos[0] * scale, this.pos[1] * scale)
+		ctx.quadraticCurveTo(this.pos2[0] * scale, this.pos2[1] * scale, this.pos3[0] * scale, this.pos3[1] * scale)
 		ctx.stroke()
 	}
 

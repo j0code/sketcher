@@ -76,6 +76,48 @@ div {
 	background: #00000040;
 }
 
+#tree {
+	flex-direction: column;
+	color: white;
+}
+
+#tree * {
+	background-color: #00000010;
+}
+
+.tree-elem {
+	flex-direction: column;
+	cursor: grab;
+}
+
+.tree-elem:active {
+	cursor: grabbing;
+}
+
+.tree-elem-head {
+	flex-direction: row;
+	padding: 2px 5px 2px 5px;
+}
+
+.tree-elem-caret {
+	padding: 0px 5px 0px 5px;
+	cursor: pointer;
+	transform: rotate(90deg);
+}
+
+.tree-elem.collapsed .tree-elem-caret {
+	transform: rotate(0deg);
+}
+
+.tree-group-children {
+	flex-direction: column;
+	padding-left: 20px;
+}
+
+.tree-elem.collapsed .tree-group-children {
+	display: none;
+}
+
 * {
 	scrollbar-color: #303030 transparent;
 	scrollbar-width: auto;

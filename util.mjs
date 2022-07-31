@@ -1,14 +1,13 @@
 export function $(q) {
 	let e = document.querySelector(q)
-	if (e && e.addEventListener) e.on = e.addEventListener
-	return e
+	return elem(e)
 }
 
 export function $$(q) {
 	let es = document.querySelectorAll(q)
 	if (es) {
 		for (e of es) {
-			if (e && e.addEventListener) e.on = e.addEventListener
+			elem(e)
 		}
 	}
 	return es
@@ -21,8 +20,48 @@ export function e(q) {
 	if(q.id) el.id = q.id
 	if(q.className) el.className = q.className
 	if(q.attrs) for(var a in q.attrs) el[a] = q.attrs[a]
-	el.on = el.addEventListener
-	return el
+	return elem(el)
+}
+
+function elem(e) {
+	if (!e || !(e instanceof Element)) return
+	e.on = e.addEventListener
+
+	const append  = (Element.prototype.append || Element.prototype.appendChild)
+	const remove  = (Element.prototype.remove || Element.prototype.removeChild)
+	const prepend = Element.prototype.prepend
+
+	e.append = (...children) => {
+		for (let child of children) {
+			if (child instanceof String) child = e(child)
+			append.call(e, child)
+		}
+		return children.length == 1 ? children[0] : children
+	}
+
+	e.prepend = (...children) => {
+		for (let child of children) {
+			if (child instanceof String) child = e(child)
+			prepend.call(e, child)
+		}
+		return children.length == 1 ? children[0] : children
+	}
+
+	e.remove = (...children) => {
+		for (let child of children) {
+			if (child instanceof Number) child = e.children[child]
+			remove.call(e, child)
+		}
+		return children.length == 1 ? children[0] : children
+	}
+
+	e.push = (...children) => {
+		e.append(...children)
+		return e.childElementCount
+	}
+	e.pop  = () => e.remove(e.lastChild)
+
+	return e
 }
 
 // thanks to Denys Séguret on https://stackoverflow.com/questions/17888039/javascript-efficient-parsing-of-css-selector
