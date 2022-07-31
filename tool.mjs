@@ -1,6 +1,7 @@
 import * as svg from "./svgelems.mjs"
 import { convertCoordsToImage as convertCoords, updateTree } from "./main.mjs"
 import { drawHandle } from "./handle.mjs"
+import Point from "./Point.mjs"
 
 export class Tool {
 
@@ -11,7 +12,7 @@ export class Tool {
 
 	draw(ctx, imageScale) {
 		for (let p of this.points) {
-			drawHandle(ctx, [p[0], p[1]])
+			drawHandle(ctx, p)
 		}
 	}
 
@@ -42,23 +43,24 @@ export class Line extends Tool {
 	draw(ctx) {
 		super.draw(ctx)
 		if (this.points.length == 2) {
-			ctx.moveTo(this.points[0][0], this.points[0][1])
-			ctx.lineTo(this.points[1][0], this.points[1][1])
+			ctx.moveTo(this.points[0].x, this.points[0].y)
+			ctx.lineTo(this.points[1].x, this.points[1].y)
 			ctx.stroke()
 		}
 	}
 
 	beginDrag(e) {
-		this.points[0] = [e.x, e.y]
+		this.points[0] = new Point(e.x, e.y)
 		this.points[1] = undefined
 	}
 
 	drag(e) {
-		this.points[1] = [e.x, e.y]
+		this.points[1] = new Point(e.x, e.y)
 	}
 
 	endDrag(e) {
-		this.image.addElement(new svg.SVGLine(convertCoords(this.points[0]), convertCoords([e.x, e.y]), null, null))
+		this.points[1] = new Point(e.x, e.y)
+		this.image.addElement(new svg.SVGLine(convertCoords(this.points[0]), convertCoords(this.points[1]), null, null))
 		this.points = []
 		updateTree()
 	}
@@ -70,32 +72,30 @@ export class QuadBezier extends Tool {
 	draw(ctx) {
 		super.draw(ctx)
 		if (this.points.length == 3) {
-			ctx.moveTo(this.points[0][0], this.points[0][1])
-			ctx.quadraticCurveTo(this.points[1][0], this.points[1][1], this.points[2][0], this.points[2][1])
+			ctx.moveTo(this.points[0].x, this.points[0].y)
+			ctx.quadraticCurveTo(this.points[1].x, this.points[1].y, this.points[2].x, this.points[2].y)
 			ctx.stroke()
 		}
 	}
 
 	beginDrag(e) {
-		this.points[0] = [e.x, e.y]
+		this.points[0] = new Point(e.x, e.y)
 		this.points[1] = undefined
 		this.points[2] = undefined
 	}
 
 	drag(e) {
-		this.points[2] = [e.x, e.y]
-		let delta = [(this.points[2][0] - this.points[0][0]) / 2, (this.points[2][1] - this.points[0][1]) / 2]
-		this.points[1] = [this.points[0][0] + delta[0] + delta[1], this.points[0][1] + delta[1] - delta[0]]
+		this.points[2] = new Point(e.x, e.y)
+		let delta = new Point((this.points[2].x - this.points[0].x) / 2, (this.points[2].y - this.points[0].y) / 2)
+		this.points[1] = new Point(this.points[0].x + delta.x + delta.y, this.points[0].y + delta.y - delta.x)
 	}
-	// y = m * x + c
-	// y - m * x = c
 
 	endDrag(e) {
-		this.points[2] = [e.x, e.y]
-		let delta = [(this.points[2][0] - this.points[0][0]) / 2, (this.points[2][1] - this.points[0][1]) / 2]
-		this.points[1] = [this.points[0][0] + delta[0] + delta[1], this.points[0][1] + delta[1] - delta[0]]
+		this.points[2] = new Point(e.x, e.y)
+		let delta = new Point((this.points[2].x - this.points[0].x) / 2, (this.points[2].y - this.points[0].y) / 2)
+		this.points[1] = new Point(this.points[0].x + delta.x + delta.y, this.points[0].y + delta.y - delta.x)
 
-		this.image.addElement(new svg.SVGQuadBezier(convertCoords(this.points[0]), convertCoords(this.points[1]), convertCoords([e.x, e.y]), null, null))
+		this.image.addElement(new svg.SVGQuadBezier(convertCoords(this.points[0]), convertCoords(this.points[1]), convertCoords(this.points[2]), null, null))
 		this.points = []
 		updateTree()
 	}
