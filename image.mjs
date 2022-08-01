@@ -19,15 +19,25 @@ export default class SvgImage {
 		this.svg     = new svg.SVGRootElement()
 		this.elems   = new Map() // id => SVGElement
 		this.selectedElement = null
+		this.shouldRedraw = false
+	}
+
+	redraw() {
+		this.shouldRedraw = true
 	}
 
 	draw() {
 
 		const ctx = this.canvas.getContext("2d")
+		ctx.clearRect(0, 0, this.#width * this.#scale, this.#height * this.#scale)
 		ctx.fillStyle = this.bgColor
 		ctx.fillRect(0, 0, this.#width * this.#scale, this.#height * this.#scale)
+		if (window.c) this.bgColor = window.c
 
+		console.log("draw!")
 		this.svg.draw(ctx, this.#scale)
+
+		this.shouldRedraw = false
 
 	}
 
@@ -69,7 +79,7 @@ export default class SvgImage {
 		this.svg.children.push(e)
 		this.selectedElement = e.id
 		updatePropertyView(e)
-		this.draw()
+		this.redraw()
 	}
 
 	get(id) {
@@ -77,7 +87,7 @@ export default class SvgImage {
 	}
 
 	getSelected() {
-		return this.selectedElement ? get(this.selectedElement) : this.svg
+		return this.selectedElement ? this.get(this.selectedElement) : this.svg
 	}
 
 }

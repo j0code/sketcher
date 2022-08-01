@@ -6,4 +6,12 @@ export default class Point {
 		this.z = z
 	}
 
+	sqDistance(p) {
+		return (this.x-p.x) ** 2 + (this.y-p.y) ** 2
+	}
+
+	distance(p) {
+		return Math.sqrt(this.sqDistance(p))
+	}
+
 }

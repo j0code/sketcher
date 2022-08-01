@@ -2,6 +2,7 @@ import { e } from "./util.mjs"
 import Point from "./Point.mjs"
 import Color from "./Color.mjs"
 import * as prop from "./propview.mjs"
+import Handle from "./handle.mjs"
 
 export class SVGElement {
 
@@ -11,6 +12,8 @@ export class SVGElement {
 		this.points = points
 		this.stroke = stroke
 		this.fill = fill
+		this.handles = []
+		for (let p of points) this.handles.push(new Handle(p))
 	}
 
 	draw(ctx, scale) {}
@@ -112,6 +115,8 @@ export class SVGLine extends SVGElement {
 	}
 
 	draw(ctx, scale) {
+		console.log("line!")
+		ctx.beginPath()
 		ctx.moveTo(this.A.x * scale, this.A.y * scale)
 		ctx.lineTo(this.B.x * scale, this.B.y * scale)
 		ctx.stroke()
@@ -142,8 +147,9 @@ export class SVGQuadBezier extends SVGElement {
 	}
 
 	draw(ctx, scale) {
+		ctx.beginPath()
 		ctx.moveTo(this.A.x * scale, this.A.y * scale)
-		ctx.quadraticCurveTo(this.B.x * scale, this.B.y * scale, this.C.x * scale, this.CS.y * scale)
+		ctx.quadraticCurveTo(this.B.x * scale, this.B.y * scale, this.C.x * scale, this.C.y * scale)
 		ctx.stroke()
 	}
 

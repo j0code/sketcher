@@ -1,13 +1,13 @@
 import * as svg from "./svgelems.mjs"
-import { convertCoordsToImage as convertCoords, updateTree } from "./main.mjs"
+import { convertCoordsToImage as convertCoords, updateTree, setTool, getImage } from "./main.mjs"
 import { drawHandle } from "./handle.mjs"
 import Point from "./Point.mjs"
 
 export class Tool {
 
-	constructor(image) {
+	constructor(name) {
 		this.points = []
-		this.image = image
+		this.name = name
 	}
 
 	draw(ctx, imageScale) {
@@ -40,6 +40,10 @@ export class Tool {
 
 export class Line extends Tool {
 
+	constructor() {
+		super("Line")
+	}
+
 	draw(ctx) {
 		super.draw(ctx)
 		if (this.points.length == 2) {
@@ -60,14 +64,19 @@ export class Line extends Tool {
 
 	endDrag(e) {
 		this.points[1] = new Point(e.x, e.y)
-		this.image.addElement(new svg.SVGLine(convertCoords(this.points[0]), convertCoords(this.points[1]), null, null))
+		getImage().addElement(new svg.SVGLine(convertCoords(this.points[0]), convertCoords(this.points[1]), null, null))
 		this.points = []
 		updateTree()
+		setTool(null)
 	}
 
 }
 
 export class QuadBezier extends Tool {
+
+	constructor() {
+		super("QuadBezier")
+	}
 
 	draw(ctx) {
 		super.draw(ctx)
@@ -95,11 +104,12 @@ export class QuadBezier extends Tool {
 		let delta = new Point((this.points[2].x - this.points[0].x) / 2, (this.points[2].y - this.points[0].y) / 2)
 		this.points[1] = new Point(this.points[0].x + delta.x + delta.y, this.points[0].y + delta.y - delta.x)
 
-		this.image.addElement(new svg.SVGQuadBezier(convertCoords(this.points[0]), convertCoords(this.points[1]), convertCoords(this.points[2]), null, null))
+		getImage().addElement(new svg.SVGQuadBezier(convertCoords(this.points[0]), convertCoords(this.points[1]), convertCoords(this.points[2]), null, null))
 		this.points = []
 		updateTree()
+		setTool(null)
 	}
 
 }
 
-export const tools = [Line, QuadBezier]
+export const tools = [new Line(), new QuadBezier()]

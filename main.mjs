@@ -11,6 +11,8 @@ const canvas = $("#sketch")
 const image  = new SvgImage(1920, 1080, "#ffffff")
 let tool     = null
 const mouseEvents = new MouseEvents($("body"), $("#sketch"))
+export const setTool = (t) => tool = t
+let draggingHandle = null
 
 const scheduler = new DrawScheduler(30, draw)
 window.scheduler = scheduler
@@ -33,10 +35,17 @@ function draw() {
 	//ctx.scale(image.scale, image.scale)
 	ctx.translate(-image.width/2 * image.scale, -image.height/2 * image.scale)
 
+	if (image.shouldRedraw) image.draw()
 	ctx.drawImage(image.canvas, 0, 0)
 	ctx.restore()
 
 	if (tool) tool.draw(ctx)
+	if (image.selectedElement) {
+		let handles = image.getSelected().handles
+		for (let handle of handles) {
+			handle.draw(ctx)
+		}
+	}
 
 }
 
@@ -47,7 +56,11 @@ export function updateTree() {
 	tree.appendChild(svg.tree())
 }
 
-image.draw()
+export function getImage() {
+	return image
+}
+
+image.redraw()
 updateTree()
 updatePropertyView(image.svg)
 
@@ -56,6 +69,10 @@ window.addEventListener("resize", draw)
 mouseEvents.on("drag", e => {
 	if (tool instanceof tools.Tool) {
 		tool.drag(e)
+		return
+	} else if (draggingHandle) {
+		draggingHandle.drag(e)
+		image.redraw()
 		return
 	}
 	image.offset.x += e.dx
@@ -89,6 +106,17 @@ mouseEvents.on("begindrag", e => {
 	$("#sketch").classList.add("dragging")
 	if (tool) {
 		tool.beginDrag(e)
+	} else if (image.selectedElement) {
+		let handles = image.getSelected().handles
+		let touching = []
+		for (let handle of handles) {
+			if (handle.touching(e)) touching.push(handle)
+		}
+		if (touching.length == 1) {
+			draggingHandle = touching[0]
+		} else if (touching.length > 1) {
+			console.warn("Touching multiple handles!", touching)
+		}
 	}
 })
 
@@ -97,6 +125,7 @@ mouseEvents.on("enddrag", e => {
 	if (tool) {
 		tool.endDrag(e)
 	}
+	draggingHandle = null
 })
 
 mouseEvents.on("move", e => {
@@ -116,11 +145,11 @@ div.on("click", () => tool = null)
 toolbar.appendChild(div)
 
 for (let i in tools.tools) {
-	const Tool = tools.tools[i]
+	const t = tools.tools[i]
 	const div = e("div.toolbar-tool")
-	div.innerText = Tool.name
+	div.innerText = t.name
 	div.dataset.toolId = i
-	div.on("click", () => tool = new Tool(image))
+	div.on("click", () => tool = t)
 	toolbar.appendChild(div)
 }
 
