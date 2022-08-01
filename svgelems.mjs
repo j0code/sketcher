@@ -1,12 +1,14 @@
 import { e } from "./util.mjs"
 import Point from "./Point.mjs"
+import Color from "./Color.mjs"
+import * as prop from "./propview.mjs"
 
 export class SVGElement {
 
-	constructor(type, pos, stroke, fill) {
+	constructor(type, points, stroke, fill) {
 		this.type = type
 		this.id = null
-		this.pos = pos
+		this.points = points
 		this.stroke = stroke
 		this.fill = fill
 	}
@@ -33,12 +35,26 @@ export class SVGElement {
 		return div
 	}
 
+	getPointLabel(index = 0) {
+		return null
+	}
+
+	getProperties() {
+		let a = []
+		for (let i in this.points) {
+			const p = this.points[i]
+			a.push(prop.pointDiv(p, this.getPointLabel(i), i))
+		}
+		a.push(prop.colorDiv(this.stroke, "stroke"), prop.colorDiv(this.fill, "fill"))
+		return a
+	}
+
 }
 
 export class SVGGroup extends SVGElement {
 
 	constructor(pos, stroke, fill) {
-		super("g", pos, stroke, fill)
+		super("g", [pos], stroke, fill)
 		this.children = []
 		this.collapsed = true
 	}
@@ -83,19 +99,35 @@ export class SVGRootElement extends SVGGroup {
 		this.type = "svg"
 	}
 
+	getProperties() {
+		return [prop.colorDiv(this.stroke, "stroke"), prop.colorDiv(this.fill, "fill")]
+	}
+
 }
 
 export class SVGLine extends SVGElement {
 
 	constructor(a, b, stroke, fill) {
-		super("line", a, stroke, fill)
-		this.pos2 = b
+		super("line", [a, b], stroke, fill)
 	}
 
 	draw(ctx, scale) {
-		ctx.moveTo(this.pos.x  * scale, this.pos.y  * scale)
-		ctx.lineTo(this.pos2.x * scale, this.pos2.y * scale)
+		ctx.moveTo(this.A.x * scale, this.A.y * scale)
+		ctx.lineTo(this.B.x * scale, this.B.y * scale)
 		ctx.stroke()
+	}
+
+	getPointLabel(index = 0) {
+		const labels = ["A","B"]
+		return labels[index]
+	}
+
+	get A() {
+		return this.points[0]
+	}
+
+	get B() {
+		return this.points[1]
 	}
 
 }
@@ -103,15 +135,33 @@ export class SVGLine extends SVGElement {
 export class SVGQuadBezier extends SVGElement {
 
 	constructor(a, b, c, stroke, fill) {
-		super("quadbezier", a, stroke, fill)
-		this.pos2 = b
-		this.pos3 = c
+		super("Quadratic Bezièr Curve", [a, b, c], stroke, fill)
+		this.a = a
+		this.b = b
+		this.c = c
 	}
 
 	draw(ctx, scale) {
-		ctx.moveTo(this.pos.x * scale, this.pos.y * scale)
-		ctx.quadraticCurveTo(this.pos2.x * scale, this.pos2.y * scale, this.pos3.x * scale, this.pos3.y * scale)
+		ctx.moveTo(this.A.x * scale, this.A.y * scale)
+		ctx.quadraticCurveTo(this.B.x * scale, this.B.y * scale, this.C.x * scale, this.CS.y * scale)
 		ctx.stroke()
+	}
+
+	getPointLabel(index = 0) {
+		const labels = ["A","B","C"]
+		return labels[index]
+	}
+
+	get A() {
+		return this.points[0]
+	}
+
+	get B() {
+		return this.points[1]
+	}
+
+	get C() {
+		return this.points[2]
 	}
 
 }

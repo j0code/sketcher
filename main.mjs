@@ -5,6 +5,7 @@ import * as tools from "./tool.mjs"
 import MouseEvents from "./mouseevents.mjs"
 import { drawHandle } from "./handle.mjs"
 import Point from "./Point.mjs"
+import updatePropertyView from "./propview.mjs"
 
 const canvas = $("#sketch")
 const image  = new SvgImage(1920, 1080, "#ffffff")
@@ -48,6 +49,7 @@ export function updateTree() {
 
 image.draw()
 updateTree()
+updatePropertyView(image.svg)
 
 window.addEventListener("resize", draw)
 
@@ -84,14 +86,24 @@ mouseEvents.on("wheel", e => {
 })
 
 mouseEvents.on("begindrag", e => {
+	$("#sketch").classList.add("dragging")
 	if (tool) {
 		tool.beginDrag(e)
 	}
 })
 
 mouseEvents.on("enddrag", e => {
+	$("#sketch").classList.remove("dragging")
 	if (tool) {
 		tool.endDrag(e)
+	}
+})
+
+mouseEvents.on("move", e => {
+	if (tool) {
+		$("#sketch").classList.remove("move")
+	} else {
+		$("#sketch").classList.add("move")
 	}
 })
 

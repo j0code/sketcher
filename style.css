@@ -10,6 +10,34 @@ div {
 	dbackground-color: #00000080;
 }
 
+input {
+	outline: none;
+}
+
+input[type="color"] {
+	padding: 0px;
+	width: 20px;
+	height: 20px;
+	border: 1px solid #767676;
+	border-radius: 0px;
+	background-color: transparent;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper,
+input[type="color"]::-webkit-color-swatch {
+	border: none;
+	padding: 0px;
+	border-radius: 0px;
+	background-color: transparent;
+}
+
+input[type="color"]::-moz-color-swatch {
+	border: none;
+	padding: 0px;
+	border-radius: 0px;
+	background-color: transparent;
+}
+
 #top {
 	display: flex;
 	flex-direction: column;
@@ -36,12 +64,22 @@ div {
 #sketch {
 	min-width: 20vw;
 	flex: 1 1 0%;
+	cursor: crosshair;
+}
+
+#sketch.move {
+	cursor: move;
+}
+
+#sketch.dragging {
+	cursor: grabbing;
 }
 
 #properties {
 	min-width: 10vw;
 	width: 20vw;
 	overflow: hidden scroll;
+	user-select: none;
 }
 
 #toolbar {
@@ -51,9 +89,13 @@ div {
 	background-color: #484848;
 	align-items: center;
 	justify-content: center;
-	--item-size: calc(10vh - 20px);
-	--item-size-min: calc(50px - 20px);
-	--item-size-max: calc(120px - 20px);
+	--item-size:
+	calc(10vh - 20px);
+	--item-size-min:
+	calc(50px - 20px);
+	--item-size-max:
+	calc(120px - 20px);
+	user-select: none;
 }
 
 .toolbar-tool {
@@ -93,6 +135,7 @@ div {
 .tree-elem-head {
 	flex-direction: row;
 	padding: 2px 5px 2px 5px;
+	user-select: none;
 }
 
 .tree-elem-caret {
@@ -114,9 +157,49 @@ div {
 	display: none;
 }
 
-* {
-	scrollbar-color: #303030 transparent;
-	scrollbar-width: auto;
+#properties {
+	color: white;
+	padding: 10px;
+	flex-direction: column;
+}
+
+#properties-head {
+	font-weight: bold;
+	text-transform: uppercase;
+	font-size: 1.4rem;
+}
+
+.property {
+	flex-direction: row;
+	align-items: center;
+}
+
+.property-label {
+	padding: 2px;
+}
+
+.property-value {
+
+}
+
+.property-point {
+
+}
+
+.property-number {
+
+}
+
+.property-number .property-value {
+	width: 50px;
+	box-sizing: content-box;
+}
+
+@supports (scrollbar-width: auto) {
+	* {
+		scrollbar-color: #303030 transparent;
+		scrollbar-width: auto;
+	}
 }
 
 ::-webkit-scrollbar {

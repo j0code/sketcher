@@ -2,6 +2,7 @@ import { e } from "./util.mjs"
 import * as svg from "./svgelems.mjs"
 import nextID from "./idassigner.mjs"
 import Point from "./Point.mjs"
+import updatePropertyView from "./propview.mjs"
 
 export default class SvgImage {
 
@@ -66,7 +67,8 @@ export default class SvgImage {
 
 		this.elems.set(id, e)
 		this.svg.children.push(e)
-		this.selectedElement = e
+		this.selectedElement = e.id
+		updatePropertyView(e)
 		this.draw()
 	}
 
