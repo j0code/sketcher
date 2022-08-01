@@ -20,6 +20,9 @@ export default class SvgImage {
 		this.elems   = new Map() // id => SVGElement
 		this.selectedElement = null
 		this.shouldRedraw = false
+
+		this.svg.id = nextID(this.elems)
+		this.svg.setImage(this)
 	}
 
 	redraw() {
@@ -89,7 +92,7 @@ export default class SvgImage {
 	}
 
 	setSelected(id) {
-		this.selectedElement = id
+		this.selectedElement = id == this.svg.id ? null : id
 		updatePropertyView(this.getSelected())
 		this.redraw()
 	}

@@ -8,7 +8,7 @@ import Point from "./Point.mjs"
 import updatePropertyView from "./propview.mjs"
 
 const canvas = $("#sketch")
-const image  = new SvgImage(1920, 1080, "#ffffff")
+const image  = new SvgImage(500, 300, "#ffffff")
 let tool     = null
 const mouseEvents = new MouseEvents($("body"), $("#sketch"))
 let draggingHandle = null
@@ -64,6 +64,24 @@ export function getImage() {
 	return image
 }
 
+export function download(filename, data) {
+	let a = document.createElement("a")
+  a.download = filename + ".svg"
+
+  let blob = URL.createObjectURL(new Blob([data], {type: "image/svg-xml"}))
+
+  a.href = blob
+  a.click()
+}
+
+$("#download-svg").on("click", () => download("sketch", image.svg.toSvg()))
+$("#download-selection").on("click", () => {
+	if (!image.selectedElement) return download("sketch", image.svg.toSvg())
+	const elem = image.getSelected()
+	const svg = `<svg viewBox="0 0 500 300" fill="none" xmlns="http://www.w3.org/2000/svg">${elem.toSvg()}</svg>`
+	download("selection", svg)
+})
+
 image.redraw()
 updateTree()
 updatePropertyView(image.svg)
@@ -77,6 +95,9 @@ mouseEvents.on("drag", e => {
 	} else if (draggingHandle) {
 		draggingHandle.drag(e)
 		image.redraw()
+		updatePropertyView(image.getSelected())
+		let elem = image.getSelected()
+		$(`#${elem.getDOMId()} .tree-elem-label`).innerHTML = elem.getTreeLabel()
 		return
 	}
 	image.offset.x += e.dx
@@ -103,7 +124,7 @@ mouseEvents.on("wheel", e => {
 	if (e.dy < 0) image.scale *= 1.125
 	let ref = Math.min(image.width, image.height)
 	if (image.scale * ref < 200) image.scale = 200 / ref
-	if (image.scale > 2) image.scale = 2
+	if (image.scale > 10) image.scale = 10
 })
 
 mouseEvents.on("begindrag", e => {

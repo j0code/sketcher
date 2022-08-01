@@ -9,6 +9,7 @@ export class SVGElement {
 	constructor(type, points, stroke, fill) {
 		this.type = type
 		this.id = null
+		this.image = null
 		this.points = points
 		this.stroke = stroke
 		this.fill = fill
@@ -19,23 +20,40 @@ export class SVGElement {
 	draw(ctx, scale) {}
 
 	tree(a = []) {
-		const id    = this instanceof SVGRootElement ? "tree-root" : `tree-elem-${this.id}`
-		const div   = e(`div.tree-elem#${id}`)
-		const head  = e("div.tree-elem-head")
-		const icon  = e("div.tree-elem-icon") // TODO: change to img or svg
-		const name  = e("span.tree-elem-name")
+		const div    = e(`div.tree-elem#${this.getDOMId()}`)
+		const head   = e("div.tree-elem-head")
+		const icon   = e("div.tree-elem-icon") // TODO: change to img or svg
+		const label  = e("span.tree-elem-label")
 
-		name.innerText  = this.type
+		div.dataset.id  = this.id
+		div.on("click", e => {
+			for (let i in e.path) {
+				if (e.path[i].classList.contains("tree-elem")) {
+					if (e.path[i].dataset.id != this.id) return
+					break
+				}
+			}
+			this.image.setSelected(this.id)
+		})
+		label.innerText  = this.getTreeLabel()
 
-		head.push(icon, name)
+		head.push(icon, label)
 		div.push(head)
 		if (a) {
-			a.div  = div
-			a.head = head
-			a.icon = icon
-			a.name = name
+			a.div   = div
+			a.head  = head
+			a.icon  = icon
+			a.label = label
 		}
 		return div
+	}
+
+	getDOMId() {
+		return this instanceof SVGRootElement ? "tree-root" : `tree-elem-${this.id}`
+	}
+
+	getTreeLabel() {
+		return `${this.type} ${this.points}`
 	}
 
 	getPointLabel(index = 0) {
@@ -56,7 +74,11 @@ export class SVGElement {
 		for (let p of this.points) {
 			p.image = img
 		}
+		this.image = img
 	}
+
+	toSvg() {}
+	toSvgPath() {}
 
 }
 
@@ -99,17 +121,39 @@ export class SVGGroup extends SVGElement {
 		return div
 	}
 
+	toSvg() {
+		let inner = ""
+		for (let c of this.children) {
+			inner += c.toSvg()
+		}
+		return `<g>${inner}</g>`
+	}
+
 }
 
 export class SVGRootElement extends SVGGroup {
 
 	constructor() {
 		super(new Point(0, 0), null, null)
-		this.type = "svg"
+		this.type   = "svg"
+		this.width  = 500
+		this.height = 300
+	}
+
+	getTreeLabel() {
+		return `svg`
 	}
 
 	getProperties() {
-		return [prop.colorDiv(this.stroke, "stroke"), prop.colorDiv(this.fill, "fill")]
+		return [prop.numberDiv(this.width, "width"), prop.numberDiv(this.height, "height"), prop.colorDiv(this.stroke, "stroke"), prop.colorDiv(this.fill, "fill")]
+	}
+
+	toSvg() {
+		let inner = ""
+		for (let c of this.children) {
+			inner += c.toSvg()
+		}
+		return `<svg viewBox="0 0 ${this.width} ${this.height}" fill="none" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`
 	}
 
 }
@@ -127,6 +171,10 @@ export class SVGLine extends SVGElement {
 		ctx.stroke()
 	}
 
+	getTreeLabel() {
+		return `line ${this.A.floor()}, ${this.B.floor()}`
+	}
+
 	getPointLabel(index = 0) {
 		const labels = ["A","B"]
 		return labels[index]
@@ -138,6 +186,14 @@ export class SVGLine extends SVGElement {
 
 	get B() {
 		return this.points[1]
+	}
+
+	toSvg() {
+		return `<line x1="${this.A.x}" y1="${this.A.y}" x2="${this.B.x}" y2="${this.B.y}" style="stroke:rgb(0,0,0);stroke-width:1"></line>`
+	}
+
+	toSvgPath() {
+		return `M ${this.A.x} ${this.A.y} L ${this.B.x} ${this.B.y}`
 	}
 
 }
@@ -158,6 +214,10 @@ export class SVGQuadBezier extends SVGElement {
 		ctx.stroke()
 	}
 
+	getTreeLabel() {
+		return `curve ${this.A.floor()}, ${this.C.floor()}`
+	}
+
 	getPointLabel(index = 0) {
 		const labels = ["A","B","C"]
 		return labels[index]
@@ -173,6 +233,14 @@ export class SVGQuadBezier extends SVGElement {
 
 	get C() {
 		return this.points[2]
+	}
+
+	toSvg() {
+		return `<path d="${this.toSvgPath()}" style="stroke:rgb(0,0,0);stroke-width:1;fill:none" />`
+	}
+
+	toSvgPath() {
+		return `M ${this.A.x} ${this.A.y} Q ${this.B.x} ${this.B.y} ${this.C.x} ${this.C.y}`
 	}
 
 }
@@ -194,6 +262,10 @@ export class SVGCubicBezier extends SVGElement {
 		ctx.stroke()
 	}
 
+	getTreeLabel() {
+		return `curve ${this.A.floor()}, ${this.D.floor()}`
+	}
+
 	getPointLabel(index = 0) {
 		const labels = ["A","B","C","D"]
 		return labels[index]
@@ -213,6 +285,14 @@ export class SVGCubicBezier extends SVGElement {
 
 	get D() {
 		return this.points[3]
+	}
+
+	toSvg() {
+		return `<path d="${this.toSvgPath()}" style="stroke:rgb(0,0,0);stroke-width:1;fill:none" />`
+	}
+
+	toSvgPath() {
+		return `M ${this.A.x} ${this.A.y} C ${this.B.x} ${this.B.y} ${this.C.x} ${this.C.y} ${this.D.x} ${this.D.y}`
 	}
 
 }

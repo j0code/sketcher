@@ -42,6 +42,14 @@ export default class Point {
 		}
 	}
 
+	toString() {
+		return `(${this.x}, ${this.y})`
+	}
+
+	floor() {
+		return new Point(Math.floor(this.x), Math.floor(this.y), Math.floor(this.z))
+	}
+
 	set image(img) {
 		this.#image = img
 		if (img) this.set(convertToImage(this, img))

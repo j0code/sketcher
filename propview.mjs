@@ -3,17 +3,17 @@ import { SVGRootElement } from "./svgelems.mjs"
 
 export default function updatePropertyView(elem) {
 	const properties = $("#properties")
-
-	const head  = e("div#properties-head")
-	const icon  = e("div#properties-icon")
-	const label = e("span#properties-label")
+	const icon  = $("#properties-icon")
+	const label = $("#properties-label")
+	const preview = $("#preview")
 
 	label.innerText = elem instanceof SVGRootElement ? "svg root" : `${elem.type} #${elem.id}`
 
-	head.append(icon, label)
 	properties.innerHTML = ""
-	properties.append(head)
 	properties.append(...elem.getProperties())
+
+	const svg = elem instanceof SVGRootElement ? elem.toSvg() : `<svg viewBox="0 0 500 300" fill="none" xmlns="http://www.w3.org/2000/svg">${elem.toSvg()}</svg>`
+	preview.innerHTML = svg
 }
 
 export function pointDiv(point, _label, index = 0) {
@@ -42,7 +42,7 @@ export function colorDiv(color, _label) {
 	return div
 }
 
-export function numberDiv(n, _label, index) {
+export function numberDiv(n, _label, index = "") {
 	const div   = e("div.property-number")
 	const label = e("label.property-label")
 	const value = e("input.property-value[type=number]")
