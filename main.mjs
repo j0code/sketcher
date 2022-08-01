@@ -11,11 +11,15 @@ const canvas = $("#sketch")
 const image  = new SvgImage(1920, 1080, "#ffffff")
 let tool     = null
 const mouseEvents = new MouseEvents($("body"), $("#sketch"))
-export const setTool = (t) => tool = t
 let draggingHandle = null
 
 const scheduler = new DrawScheduler(30, draw)
 window.scheduler = scheduler
+
+export function setTool(t) {
+	tool = t
+	if (tool) image.setSelected(null)
+}
 
 let imageRotation = 0
 
@@ -115,7 +119,8 @@ mouseEvents.on("begindrag", e => {
 		if (touching.length == 1) {
 			draggingHandle = touching[0]
 		} else if (touching.length > 1) {
-			console.warn("Touching multiple handles!", touching)
+			draggingHandle = touching[0]
+			console.debug("Touching multiple handles!", touching)
 		}
 	}
 })
@@ -149,17 +154,6 @@ for (let i in tools.tools) {
 	const div = e("div.toolbar-tool")
 	div.innerText = t.name
 	div.dataset.toolId = i
-	div.on("click", () => tool = t)
+	div.on("click", () => setTool(t))
 	toolbar.appendChild(div)
-}
-
-export function convertCoordsToImage(coords) {
-	// ctx.translate(canvas.width/2 - (image.width/2 * imageScale), canvas.height/2 - (image.height/2 * imageScale))
-	return new Point((coords.x - canvas.width/2 - image.offset.x) / image.scale + image.width/2, (coords.y - canvas.height/2 - image.offset.y) / image.scale + image.height/2)
-}
-
-export function convertCoordsToCanvas(coords) {
-	// ctx.translate(canvas.width/2 - (image.width/2 * imageScale), canvas.height/2 - (image.height/2 * imageScale))
-	//return [canvas.width/2 - (image.width/2 * imageScale) + coords[0] + imageOffset[0], canvas.height/2 - (image.height/2 * imageScale) + coords[1] + imageOffset[1]]
-	return new Point(canvas.width/2 + image.offset.x + (-image.width/2 + coords.x) * image.scale, canvas.height/2 + image.offset.y + (-image.height/2 + coords.y) * image.scale)
 }

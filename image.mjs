@@ -34,7 +34,6 @@ export default class SvgImage {
 		ctx.fillRect(0, 0, this.#width * this.#scale, this.#height * this.#scale)
 		if (window.c) this.bgColor = window.c
 
-		console.log("draw!")
 		this.svg.draw(ctx, this.#scale)
 
 		this.shouldRedraw = false
@@ -74,12 +73,11 @@ export default class SvgImage {
 		if (!(e instanceof svg.SVGElement)) return
 		let id = nextID(this.elems)
 		e.id = id
+		e.setImage(this)
 
 		this.elems.set(id, e)
 		this.svg.children.push(e)
-		this.selectedElement = e.id
-		updatePropertyView(e)
-		this.redraw()
+		this.setSelected(e.id)
 	}
 
 	get(id) {
@@ -88,6 +86,12 @@ export default class SvgImage {
 
 	getSelected() {
 		return this.selectedElement ? this.get(this.selectedElement) : this.svg
+	}
+
+	setSelected(id) {
+		this.selectedElement = id
+		updatePropertyView(this.getSelected())
+		this.redraw()
 	}
 
 }

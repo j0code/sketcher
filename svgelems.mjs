@@ -52,6 +52,12 @@ export class SVGElement {
 		return a
 	}
 
+	setImage(img) {
+		for (let p of this.points) {
+			p.image = img
+		}
+	}
+
 }
 
 export class SVGGroup extends SVGElement {
@@ -115,7 +121,6 @@ export class SVGLine extends SVGElement {
 	}
 
 	draw(ctx, scale) {
-		console.log("line!")
 		ctx.beginPath()
 		ctx.moveTo(this.A.x * scale, this.A.y * scale)
 		ctx.lineTo(this.B.x * scale, this.B.y * scale)
@@ -168,6 +173,46 @@ export class SVGQuadBezier extends SVGElement {
 
 	get C() {
 		return this.points[2]
+	}
+
+}
+
+export class SVGCubicBezier extends SVGElement {
+
+	constructor(a, b, c, d, stroke, fill) {
+		super("Cubic Bezièr Curve", [a, b, c, d], stroke, fill)
+		this.a = a
+		this.b = b
+		this.c = c
+		this.d = d
+	}
+
+	draw(ctx, scale) {
+		ctx.beginPath()
+		ctx.moveTo(this.A.x * scale, this.A.y * scale)
+		ctx.bezierCurveTo(this.B.x * scale, this.B.y * scale, this.C.x * scale, this.C.y * scale, this.D.x * scale, this.D.y * scale)
+		ctx.stroke()
+	}
+
+	getPointLabel(index = 0) {
+		const labels = ["A","B","C","D"]
+		return labels[index]
+	}
+
+	get A() {
+		return this.points[0]
+	}
+
+	get B() {
+		return this.points[1]
+	}
+
+	get C() {
+		return this.points[2]
+	}
+
+	get D() {
+		return this.points[3]
 	}
 
 }
